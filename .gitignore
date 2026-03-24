@@ -1,0 +1,13 @@
+# Local config with real credentials — never commit
+config.local.json
+
+# Logs
+logs/
+*.log
+*.pyc
+__pycache__/
+.env
+*.env.local
+
+# Pipeline output files
+*_results.json

@@ -1,0 +1,35 @@
+{
+  "id": "openclaw-gtm-skills",
+  "name": "OpenClaw GTM Intelligence",
+  "description": "Outbound prospecting pipeline: research, score, segment, draft sequences, track experiments.",
+  "version": "0.1.0",
+  "config": {
+    "supabaseUrl": "YOUR_SUPABASE_URL",
+    "supabaseKey": "YOUR_SUPABASE_SERVICE_KEY",
+    "attioApiKey": "YOUR_ATTIO_API_KEY",
+    "firecrawlUrl": "YOUR_FIRECRAWL_URL",
+    "seqdApiUrl": "YOUR_SEQD_API_URL"
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "supabaseUrl": { "type": "string", "description": "Your Supabase project URL (e.g. https://yourproject.supabase.co)" },
+      "supabaseKey": { "type": "string", "description": "Supabase service role key (found in project settings > API)" },
+      "attioApiKey": { "type": "string", "description": "Attio API key (optional — only needed for CRM sync)" },
+      "firecrawlUrl": { "type": "string", "description": "Firecrawl endpoint — self-hosted (https://github.com/mendableai/firecrawl) or cloud (https://firecrawl.dev)" },
+      "seqdApiUrl": { "type": "string", "description": "seqd API URL (optional — only needed for outreach enrollment)" }
+    }
+  },
+  "skills": [
+    "skills/gtm-intake",
+    "skills/gtm-prefilter",
+    "skills/gtm-linkedin",
+    "skills/gtm-research",
+    "skills/gtm-sales-org",
+    "skills/gtm-signals",
+    "skills/gtm-segment",
+    "skills/gtm-outreach",
+    "skills/gtm-deck"
+  ]
+}
