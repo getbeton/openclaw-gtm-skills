@@ -2,30 +2,25 @@
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-An [OpenClaw](https://openclaw.ai) plugin that turns a list of domains into researched, scored, segmented, and outreach-ready B2B prospects. A Clay.com alternative you run yourself.
+An [OpenClaw](https://openclaw.ai) plugin + skill collection for full-stack B2B outbound GTM. Turns domains into researched, scored, segmented, and outreach-ready prospects. A Clay.com alternative you run yourself.
 
 Inspired by and partially based on [extruct-ai/gtm-skills](https://github.com/extruct-ai/gtm-skills). See [ATTRIBUTION.md](ATTRIBUTION.md).
 
 ---
 
-## Pipeline
+## What's Inside
 
-```
-gtm-intake → gtm-prefilter → gtm-linkedin (optional) → gtm-research
-    → gtm-sales-org → gtm-signals → gtm-segment → gtm-outreach → gtm-deck
-```
+**Standalone skills** (can be used independently):
+- `context-building` — build/update a GTM context file (ICP, voice, proof, campaigns, DNC list)
+- `hypothesis-building` — generate testable pain hypotheses from ICP + win cases
+- `email-prompt-building` — craft self-contained email prompt templates for campaigns
+- `email-generation` — run prompts per-contact from CSV → generate personalized emails
+- `list-segmentation` — segment + tier companies by hypothesis fit + data richness
+- `gtm-hypothesis-scorer` — RICE scoring for all GTM hypotheses in your DB
 
-| Skill | What it does |
-|-------|-------------|
-| `gtm-intake` | Normalizes raw domain lists and imports them into Supabase |
-| `gtm-prefilter` | Fast HTTP reachability check — filters parked/dead domains (~300-500/min) |
-| `gtm-linkedin` | Optional LinkedIn headcount enrichment via Firecrawl + proxies |
-| `gtm-research` | Deep Firecrawl crawl → classifies GTM motion, vertical, pricing model |
-| `gtm-sales-org` | Extracts sales headcount and RevOps hiring signals from LinkedIn/careers |
-| `gtm-signals` | Detects buying signals (job posts, funding, tech changes, etc.) |
-| `gtm-segment` | Scores and tiers companies against your ICP segments |
-| `gtm-outreach` | Drafts personalized email sequences grounded in research + signals |
-| `gtm-deck` | Generates a sales deck when a prospect replies positively |
+**Plugin pipeline** (at `plugins/beton-gtm/`):
+- `gtm-intake` → `gtm-prefilter` → `gtm-research` → `gtm-sales-org` → `gtm-signals` → `gtm-segment` → `gtm-outreach` → `gtm-deck`
+- Full end-to-end: domain list → researched companies → fit scores → outreach emails → sales decks
 
 ---
 
@@ -39,17 +34,36 @@ gtm-intake → gtm-prefilter → gtm-linkedin (optional) → gtm-research
 
 ---
 
-## Setup
+## Standalone Skills Setup
+
+Copy skills to your workspace:
+
+```bash
+cp -r skills/* ~/.openclaw/workspace/skills/
+```
+
+Each skill has a `SKILL.md` explaining when to use it and what it does. Example workflow:
+
+1. **context-building** — capture product, ICP, voice, proof points
+2. **hypothesis-building** — define pain hypotheses for a vertical
+3. **email-prompt-building** — build a campaign-specific email prompt
+4. **email-generation** — run the prompt against a CSV of contacts
+
+See individual skill READMEs for details.
+
+---
+
+## Plugin Pipeline Setup
 
 ### 1. Apply the database schema
 
 ```bash
-supabase db push --workdir ./supabase --password <your-db-password>
+supabase db push --workdir ./plugins/beton-gtm/supabase --password <your-db-password>
 ```
 
 ### 2. Configure the plugin
 
-Edit `openclaw.plugin.json` and fill in your values:
+Edit `plugins/beton-gtm/openclaw.plugin.json` and fill in your values:
 
 ```json
 {
@@ -65,10 +79,10 @@ Edit `openclaw.plugin.json` and fill in your values:
 
 ### 3. Install in OpenClaw
 
-Copy this directory to your OpenClaw workspace `plugins/` folder:
+Copy the plugin directory to your workspace:
 
 ```bash
-cp -r openclaw-gtm-skills ~/.openclaw/workspace/plugins/gtm-skills
+cp -r plugins/beton-gtm ~/.openclaw/workspace/plugins/
 ```
 
 ### 4. Run the pipeline
@@ -76,40 +90,55 @@ cp -r openclaw-gtm-skills ~/.openclaw/workspace/plugins/gtm-skills
 Start with a CSV of domains:
 
 ```bash
-cd ./scripts
+cd plugins/beton-gtm/scripts
 python3 run_intake.py --input domains.csv
 python3 run_prefilter.py --limit 50000 --workers 20
-python3 run_research.py --limit 1000 --workers 5
+python3 run_research_combined.py --limit 1000 --workers 5
 python3 run_segment.py
 ```
 
 ---
 
-## Schema
+## Database Schema
 
-Full Supabase schema in `supabase/migrations/`. Tables:
+Full Supabase schema in `plugins/beton-gtm/supabase/migrations/`. Tables:
 
 - `companies` — core entity, tracks `research_status` through the pipeline
-- `company_classification` — GTM motion, vertical, pricing model
+- `company_classification` — GTM motion, vertical, pricing model, B2B/SaaS flags
 - `company_firmographics` — headcount, funding stage
 - `company_tech_stack` — detected tools (CRM, analytics, etc.)
 - `company_sales_org` — sales/revops headcount, hiring signals
 - `company_social` — LinkedIn URL
 - `segments` — your ICP segments with pain hypotheses + value props
 - `company_segments` — company ↔ segment scoring (fit_score, fit_tier)
+- `value_hypotheses` — segment-level pain hypotheses (generated by hypothesis-building)
+- `gtm_experiments` — HADI cycle tracking for outreach experiments
 - `signals` — buying signals per company
 - `contacts` — people found for outreach
-- `experiments` — outreach experiments
 - `outreach` — drafted sequences, review status
 - `results` — outcomes (replied, bounced, etc.)
 
 ---
 
-## Database conventions
+## Database Conventions
 
 - Flat relational tables with foreign keys — no JSONB for structured data
 - All schema changes via `supabase migration new` — never raw SQL
 - Migration files are the source of truth
+
+---
+
+## Recent Updates (last 2 weeks)
+
+- Email writing rules locked in: no caps, capitalize given names, `->` not `→`, "Sent from Superhuman" signature
+- Subject line rule: name the problem/direction, NOT the company name
+- New skills: `gtm-hypothesis-scorer` (RICE scoring), `daily-closer` (Sunsama EOD ritual)
+- Hypothesis gen now filters to B2B SaaS only (`b2b=true AND saas=true`)
+- Combined research + sales org into one script (`run_research_combined.py`)
+- Value hypothesis generator added
+- Vertical mismatch is now a hard disqualifier in segment scoring
+- 30-industry segment taxonomy + updated `VERTICAL_MAP`
+- Pricing teardown skill added with n8n hero images
 
 ---
 
