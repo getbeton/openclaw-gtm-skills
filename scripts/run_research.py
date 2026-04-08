@@ -29,8 +29,18 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ── Config ────────────────────────────────────────────────────────────────────
-SUPABASE_URL = "YOUR_SUPABASE_URL"
-SUPABASE_KEY = "YOUR_SUPABASE_SERVICE_KEY"
+def _load_local_config() -> dict:
+    config_path = os.path.join(os.path.dirname(__file__), "..", "config.local.json")
+    try:
+        with open(os.path.abspath(config_path)) as f:
+            import json as _j; return _j.load(f)
+    except (FileNotFoundError, ValueError):
+        return {}
+
+_lc = _load_local_config()
+SUPABASE_URL = os.getenv("SUPABASE_URL", _lc.get("supabaseUrl", "YOUR_SUPABASE_URL"))
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", _lc.get("supabaseKey", "YOUR_SUPABASE_SERVICE_KEY"))
+
 def _load_firecrawl_endpoint() -> str:
     import json as _json, os as _os
     cfg_path = _os.path.expanduser("~/.openclaw/workspace/integrations/firecrawl.json")
@@ -40,10 +50,10 @@ def _load_firecrawl_endpoint() -> str:
     except Exception:
         return "http://104.197.67.6:3002"  # fallback
 FIRECRAWL_ENDPOINT = _load_firecrawl_endpoint()
-CONCURRENCY = 12
+CONCURRENCY = 3
 MAX_PAGES = 10
 COMPANY_LIMIT = 100
-LOGS_DIR = ".//logs/research"
+LOGS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "logs", "research")
 
 SUPABASE_HEADERS = {
     "apikey": SUPABASE_KEY,
@@ -631,7 +641,7 @@ async def main():
             print(f"    {vertical}: {count}")
 
     # Save full results to JSON
-    output_path = ".//scripts/research_results.json"
+    output_path = os.path.join(os.path.dirname(__file__), "research_results.json")
     with open(output_path, "w") as f:
         json.dump(results, f, indent=2, default=str)
     print(f"\nFull results saved to: {output_path}")

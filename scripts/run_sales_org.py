@@ -30,7 +30,7 @@ import httpx
 
 # ── Research log cache ────────────────────────────────────────────────────────
 
-RESEARCH_LOGS_DIR = ".//logs/research"
+RESEARCH_LOGS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "logs", "research")
 
 def load_research_cache(domain: str) -> Optional[dict]:
     """Load existing research log for domain if available."""
@@ -103,13 +103,10 @@ def _load_config():
 FIRECRAWL_ENDPOINT, SOAX_CONFIG = _load_config()
 
 def _get_supabase_creds():
-    with open(os.path.expanduser("~/.openclaw/workspace/plugins/beton-gtm/scripts/run_prefilter.py")) as f:
-        content = f.read()
-    import re
-    m = re.search(r'SERVICE_KEY\s*=\s*\(([^)]+)\)', content, re.DOTALL)
-    key = "".join(re.findall(r'"([^"]*)"', m.group(1)))
-    base = re.search(r'SUPABASE_BASE\s*=\s*"([^"]+)"', content).group(1)
-    return base, key
+    config_path = os.path.expanduser("~/.openclaw/workspace/plugins/beton-gtm/config.local.json")
+    with open(config_path) as f:
+        cfg = json.load(f)
+    return cfg["supabaseUrl"], cfg["supabaseKey"]
 
 SUPABASE_BASE, SERVICE_KEY = _get_supabase_creds()
 SUPABASE_H = {
@@ -330,7 +327,7 @@ async def fetch_companies(client: httpx.AsyncClient, limit: int) -> list[dict]:
     while len(companies) < limit:
         r = await client.get(
             f"{SUPABASE_BASE}/rest/v1/companies"
-            f"?research_status=in.(classified,scored)&select=id,domain,name"
+            f"?research_status=eq.scored&select=id,domain,name"
             f"&order=domain.asc&limit={PAGE_SIZE}&offset={offset}",
             headers={**SUPABASE_H, "Prefer": "count=exact"},
             timeout=20,

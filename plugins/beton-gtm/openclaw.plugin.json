@@ -1,14 +1,14 @@
 {
   "id": "beton-gtm",
   "name": "Beton GTM Intelligence",
-  "description": "Outbound prospecting pipeline: research, score, segment, draft sequences, track experiments.",
-  "version": "0.1.0",
+  "description": "Outbound prospecting pipeline: research, score, segment, draft sequences, enroll via Apollo.io, track experiments.",
+  "version": "0.2.0",
   "config": {
     "supabaseUrl": "YOUR_SUPABASE_URL",
     "supabaseKey": "YOUR_SUPABASE_SERVICE_KEY",
     "attioApiKey": "YOUR_ATTIO_API_KEY",
     "firecrawlUrl": "YOUR_FIRECRAWL_URL",
-    "seqdApiUrl": "YOUR_SEQD_API_URL"
+    "apolloApiKey": "YOUR_APOLLO_API_KEY"
   },
   "configSchema": {
     "type": "object",
@@ -18,7 +18,7 @@
       "supabaseKey": { "type": "string", "description": "Supabase service role key" },
       "attioApiKey": { "type": "string", "description": "Attio API key (optional)" },
       "firecrawlUrl": { "type": "string", "description": "Firecrawl endpoint" },
-      "seqdApiUrl": { "type": "string", "description": "seqd API URL (optional)" }
+      "apolloApiKey": { "type": "string", "description": "Apollo.io API key" }
     }
   },
   "skills": [
@@ -29,7 +29,10 @@
     "skills/gtm-sales-org",
     "skills/gtm-signals",
     "skills/gtm-segment",
+    "skills/gtm-contacts",
     "skills/gtm-outreach",
+    "skills/gtm-send",
+    "skills/gtm-campaign-prep",
     "skills/gtm-deck"
   ]
 }

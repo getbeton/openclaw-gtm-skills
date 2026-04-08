@@ -61,7 +61,7 @@ SUPABASE_H = {
     "Content-Type": "application/json",
 }
 
-LOGS_DIR = ".//logs/research"
+LOGS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "logs", "research")
 CONCURRENCY = 10
 LIMIT = 100
 PAGE_SIZE = 500

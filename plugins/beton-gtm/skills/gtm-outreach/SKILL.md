@@ -181,7 +181,7 @@ Or reply with: /approve {outreach_id} or /reject {outreach_id}
 
 ## Notes
 
-- Never enroll in seqd automatically — always require Vlad approval first
+- Never enroll in Apollo automatically — always require Vlad approval first
 - Don't draft outreach for `pass` or `T3` companies without explicit override
 - If contact has no email: draft anyway, note `email_required: true` in sequence
 - Subject lines must be unique across the sequence (no repeats)

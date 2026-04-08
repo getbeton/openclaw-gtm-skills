@@ -1,6 +1,6 @@
 # gtm-send
 
-**Description:** Send outreach campaigns via seqd (primary) or Apollo.io (fallback). Includes pre-send Haiku validation to ensure company data matches sequence content.
+**Description:** Send outreach campaigns via Apollo.io (primary). Includes pre-send Haiku validation to ensure company data matches sequence content.
 
 ## When to use
 
@@ -22,16 +22,84 @@ Before sending, run a quick sanity check:
 
 **If validation fails:** Flag for manual review, don't send.
 
-### 3. Choose Sender
-**Primary:** seqd (if available and mailbox connected)
-- Creates sequence via seqd API
-- Maps contacts to sequence steps
-- Schedules sends
+### 3. Send via Apollo.io (primary)
 
-**Fallback:** Apollo.io Sender
-- Uses Apollo's sequence API
-- Requires Apollo credits (1 per email sent)
-- Less flexible than seqd but works without mailbox setup
+Apollo.io sequences use a **custom dynamic variable** approach for fully personalized emails:
+
+#### How it works
+1. **Custom fields on contacts** hold the actual email content (subject + body per step)
+2. **Sequence templates** in Apollo reference those fields: `{{step1_subject}}` / `{{step1_body}}`
+3. **API creates/updates contacts** with pre-written content in custom fields
+4. **API adds contacts to sequences** with mailbox routing
+5. Apollo handles scheduling, daily limits, bounce tracking, OOO detection natively
+
+#### Custom field IDs (created 2026-04-07)
+```
+step1_subject: 69d525488330dd00195f800b  (string)
+step1_body:    69d525619054a300110ceb0f  (textarea)
+step2_subject: 69d525669054a300110ceb46  (string)
+step2_body:    69d52568581c6d000d43f69d  (textarea)
+step3_subject: 69d5256a581c6d000d43f6f4  (string)
+step3_body:    69d5256b1c86c20011f94dcd  (textarea)
+step4_subject: 69d5256d581c6d000d43f719  (string)
+step4_body:    69d5256f4d4f720015f6e404  (textarea)
+step5_subject: 69d52571e45bd20015b6e896  (string)
+step5_body:    69d525724d4f720015f6e421  (textarea)
+```
+
+#### Apollo API key facts (learned 2026-04-07/08)
+- **Cannot create sequences via API** — sequences must be created in Apollo UI
+- **Can create/update contacts** with custom fields: `POST /api/v1/contacts`
+- **Can add contacts to sequences**: `POST /api/v1/emailer_campaigns/{id}/add_contact_ids`
+- **Can search contacts**: `POST /api/v1/contacts/search` (unreliable — prefer `people/match`)
+- **People search**: `POST /api/v1/mixed_people/api_search` (NOT `/mixed_people/search` — deprecated, returns 422)
+- **Cannot activate sequences via API** — must be done in UI (returns 404)
+- **Cloudflare blocks Python urllib** — must set `User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)` header
+- **Rate limits**: plan-dependent, watch for 429 responses, use exponential backoff
+- **Re-adding a contact to a sequence** updates the mailbox assignment (doesn't duplicate)
+- **Waterfall enrichment via API**: `POST /api/v1/people/match` with `run_waterfall_email: true`
+- **Email validation**: connect LeadMagic API key in Apollo Settings > Waterfall for email verification
+
+#### Connected mailboxes
+```
+v@getbeton.info:              6914278de36ea5001911cf8e  (60/day)
+vlad@getbeton.info:           68f4d6c21e0ee00015cc92e8  (60/day)
+vlad.nadymov@getbeton.info:   6914298ff4b83f000df5e68c  (60/day)
+```
+Total capacity: 180 emails/day across 3 mailboxes.
+
+#### HTML formatting
+- Use `<br>` tags for line breaks in email bodies — Apollo renders them correctly in sent emails
+- textarea custom fields have 2000 char limit (plenty for 50-80 word emails)
+
+#### Enrollment script
+`scripts/apollo_enroll.py` — universal enrollment script with workstream + group support:
+```bash
+python3 scripts/apollo_enroll.py --workstream ws1 --test 5       # test 5 contacts
+python3 scripts/apollo_enroll.py --workstream ws1 --dry-run      # preview without API calls
+python3 scripts/apollo_enroll.py --workstream ws1                 # full enrollment
+python3 scripts/apollo_enroll.py --workstream ws2 --group 3step  # only 3-step group
+python3 scripts/apollo_enroll.py --workstream ws3 --group sales  # only sales thread
+```
+
+#### Sales leader enrichment script
+`scripts/find_sales_leaders.py` — finds VP/Director/Head of Sales via Apollo search + enrich:
+- Uses `mixed_people/api_search` to find candidates by title + domain
+- Enriches via `people/match` to get verified email
+- Falls back to broader title search if specific titles not found
+- Outputs to `campaign-big-b2b/ws3_sales_leaders.json`
+
+#### Sequence setup in Apollo UI
+Each sequence uses `{{stepN_subject}}` and `{{stepN_body}}` dynamic variables:
+1. Create sequence in Apollo UI
+2. Add auto-email steps with `{{step1_subject}}` as subject, `{{step1_body}}` as body
+3. Set delays between steps (standard: +1 bday/+2d/+3d/+2d)
+4. Enable: mark_finished_if_reply, mark_paused_if_ooo
+5. Activate in UI (API cannot activate)
+
+### seqd (deprecated — do not use)
+
+**WARNING:** seqd has a critical bug — resuming paused sequences fires all steps at once instead of respecting delay_days. This caused a blast incident on 2026-04-07 (355 sequences, ~1,775 emails in 22 minutes). Do not use seqd for production outreach. Leave existing seqd sequences as-is; do not re-authenticate mailboxes.
 
 ### 4. Track Delivery
 - Store send record in `campaign_sends` table
@@ -81,7 +149,7 @@ python3 scripts/send_campaign.py --campaign-id <uuid> --dry-run
 
 ### Send all ready campaigns
 ```bash
-python3 scripts/send_campaign.py --status ready --limit 10 --sender seqd
+python3 scripts/send_campaign.py --status ready --limit 10 --sender apollo
 ```
 
 ### Validate without sending
@@ -91,19 +159,21 @@ python3 scripts/send_campaign.py --campaign-id <uuid> --validate-only
 
 ## Sender Configuration
 
-### seqd Setup
-1. Ensure seqd is running at `seqd.getbeton.org`
-2. Link mailboxes (v@getbeton.ai, vlad@getbeton.info, etc.)
-3. Store API token in `integrations/seqd.json`:
+### Apollo.io (primary)
+Uses Apollo key from `integrations/apollo.json`:
 ```json
 {
-  "api_url": "https://seqd.getbeton.org/api",
-  "api_token": "YOUR_TOKEN"
+  "api_key": "<your-apollo-api-key>"
 }
 ```
 
-### Apollo.io Fallback
-Uses existing Apollo key from `integrations/apollo.json`. No extra setup needed.
+### Testing protocol (mandatory before bulk sends)
+After the seqd blast incident, ALL bulk enrollments must follow this protocol:
+
+**Phase A:** Enroll 1 contact → verify email preview in Apollo UI
+**Phase B:** Enroll 5 contacts → activate → check for bounces/spam/timing issues
+**Phase C:** Wait 24h → if clean, bulk enroll remaining
+**Never:** Bulk-activate paused sequences without Phase A-B testing first
 
 ## Database Schema
 
@@ -116,7 +186,7 @@ CREATE TABLE campaign_sends (
   contact_id UUID REFERENCES contacts(id),
   company_id UUID REFERENCES companies(id),
   
-  sender TEXT NOT NULL, -- 'seqd' | 'apollo'
+  sender TEXT NOT NULL, -- 'apollo' (seqd deprecated)
   status TEXT NOT NULL, -- 'sent' | 'failed' | 'validated' | 'flagged'
   validation_result JSONB, -- {pass: true/false, reason: '...', model: 'haiku'}
   
@@ -130,9 +200,7 @@ CREATE TABLE campaign_sends (
 
 **Validation fails:** Store in `campaign_sends` with `status='flagged'`, notify via Telegram
 
-**seqd unavailable:** Fallback to Apollo automatically
-
-**Apollo fails:** Store error, retry once after 5min
+**Apollo fails:** Store error, retry once after 5min (watch for Cloudflare 1010 errors — needs User-Agent header)
 
 **Contact email invalid:** Skip contact, log error
 

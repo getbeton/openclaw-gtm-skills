@@ -64,7 +64,7 @@ def _load_firecrawl_endpoint() -> str:
         return "YOUR_FIRECRAWL_URL"
 
 FIRECRAWL_ENDPOINT = _load_firecrawl_endpoint()
-LOGS_DIR = ".//logs/research"
+LOGS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "logs", "research")
 CACHE_MAX_AGE_DAYS = 30
 MAX_CONTENT_PAGES = 10
 MAX_CAREER_PAGES = 30  # max sub-pages within careers crawl

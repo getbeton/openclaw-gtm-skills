@@ -17,13 +17,17 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
 # ── Config ────────────────────────────────────────────────────────────────────
-SERVICE_KEY = (
-    "YOUR_SUPABASE_SERVICE_KEY"
-    "eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFteWd0d29xdWpsdWVwaWJjbmZzIiwicm9sZSI6"
-    "InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3Mzg0OTIxMywiZXhwIjoyMDg5NDI1MjEzfQ."
-    "YOUR_SUPABASE_SERVICE_ROLE_KEY"
-)
-SUPABASE_BASE = "YOUR_SUPABASE_URL"
+def _load_local_config() -> dict:
+    import os as _os, json as _j
+    p = _os.path.join(_os.path.dirname(__file__), "..", "config.local.json")
+    try:
+        with open(_os.path.abspath(p)) as f: return _j.load(f)
+    except Exception: return {}
+
+_lc = _load_local_config()
+import os as _os
+SERVICE_KEY = _os.getenv("SUPABASE_KEY", _lc.get("supabaseKey", "YOUR_SUPABASE_SERVICE_KEY"))
+SUPABASE_BASE = _os.getenv("SUPABASE_URL", _lc.get("supabaseUrl", "YOUR_SUPABASE_URL"))
 SUPABASE_H = {
     "apikey": SERVICE_KEY,
     "Authorization": f"Bearer {SERVICE_KEY}",
@@ -34,7 +38,7 @@ SUPABASE_H = {
 MAX_WORKERS = 20        # high concurrency — lightweight requests
 HTTP_TIMEOUT = 8        # seconds — fast fail
 MIN_CONTENT_LEN = 200   # bytes — anything shorter is an error/redirect loop
-LOGS_DIR = ".//logs/prefilter"
+LOGS_DIR = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "logs", "prefilter")
 
 PARKED_SIGNALS = [
     "this domain is for sale",
@@ -191,7 +195,7 @@ def process_domain(company: dict) -> dict:
     try:
         import os
         safe_domain = domain.replace("/", "_").replace(":", "_")
-        log_path = os.path.join(LOGS_DIR, f"{safe_domain}.json")
+        log_path = _os.path.join(LOGS_DIR, f"{safe_domain}.json")
         with open(log_path, "w") as lf:
             json.dump({
                 "domain": domain,
@@ -279,7 +283,7 @@ def main():
         "skip_reasons": skip_reasons,
         "errors": errors,
     }
-    out_path = ".//scripts/prefilter_results.json"
+    out_path = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "prefilter_results.json")
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2)
     print(f"\nResults → {out_path}")

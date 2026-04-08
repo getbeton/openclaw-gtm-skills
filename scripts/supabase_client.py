@@ -22,8 +22,18 @@ logger = logging.getLogger(__name__)
 # Client
 # ============================================================
 
-SUPABASE_URL_DEFAULT = "YOUR_SUPABASE_URL"
-SUPABASE_KEY_DEFAULT = "YOUR_SUPABASE_SERVICE_KEY"
+def _load_local_config() -> dict:
+    """Load config.local.json from the plugin dir if present (local-only, not committed)."""
+    config_path = os.path.join(os.path.dirname(__file__), "..", "config.local.json")
+    try:
+        with open(os.path.abspath(config_path)) as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+_local_config = _load_local_config()
+SUPABASE_URL_DEFAULT = _local_config.get("supabaseUrl", "YOUR_SUPABASE_URL")
+SUPABASE_KEY_DEFAULT = _local_config.get("supabaseKey", "YOUR_SUPABASE_SERVICE_KEY")
 
 class SupabaseClient:
     def __init__(self, url: str = None, key: str = None):

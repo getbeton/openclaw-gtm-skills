@@ -15,6 +15,7 @@ Usage:
   python3 run_prefilter_homepage_only.py --fresh   # re-fetch all raw domains
 """
 
+import os
 import httpx
 import re
 import time
@@ -24,13 +25,14 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
 # ── Config ────────────────────────────────────────────────────────────────────
-SERVICE_KEY = (
-    "YOUR_SUPABASE_SERVICE_KEY"
-    "eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFteWd0d29xdWpsdWVwaWJjbmZzIiwicm9sZSI6"
-    "InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3Mzg0OTIxMywiZXhwIjoyMDg5NDI1MjEzfQ."
-    "YOUR_SUPABASE_SERVICE_ROLE_KEY"
-)
-SUPABASE_BASE = "YOUR_SUPABASE_URL"
+def _load_supabase_creds():
+    import json as _j, os as _os
+    cfg = _os.path.expanduser("~/.openclaw/workspace/plugins/beton-gtm/config.local.json")
+    with open(cfg) as _f:
+        d = _j.load(_f)
+    return d["supabaseUrl"], d["supabaseKey"]
+_SUPA_URL, SERVICE_KEY = _load_supabase_creds()
+SUPABASE_BASE = _SUPA_URL
 SUPABASE_H = {
     "apikey": SERVICE_KEY,
     "Authorization": f"Bearer {SERVICE_KEY}",
@@ -38,7 +40,14 @@ SUPABASE_H = {
     "Prefer": "return=minimal",
 }
 
-FIRECRAWL_BASE = "YOUR_FIRECRAWL_URL"
+def _load_firecrawl_base():
+    import json as _j, os as _os
+    try:
+        with open(_os.path.expanduser("~/.openclaw/workspace/integrations/firecrawl.json")) as _f:
+            return _j.load(_f)["base_url"].rstrip("/")
+    except Exception:
+        return "http://localhost:3002"
+FIRECRAWL_BASE = _load_firecrawl_base()
 FIRECRAWL_TIMEOUT = 45  # seconds — generous for slow sites
 
 MAX_WORKERS = 8  # parallel scrapes — each still writes to Supabase immediately after completion
@@ -65,7 +74,7 @@ PARKED_SIGNALS = [
     "is for sale",
 ]
 
-PREV_RESULTS = ".//scripts/prefilter_results.json"
+PREV_RESULTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prefilter_results.json")
 
 # ── Domain helpers ─────────────────────────────────────────────────────────────
 

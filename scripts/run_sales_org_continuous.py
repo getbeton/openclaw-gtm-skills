@@ -37,12 +37,10 @@ logger = logging.getLogger(__name__)
 # ── Supabase creds (borrowed from run_prefilter.py) ───────────────────────────
 
 def _get_supabase_creds():
-    with open(os.path.expanduser("~/.openclaw/workspace/plugins/beton-gtm/scripts/run_prefilter.py")) as f:
-        content = f.read()
-    m = re.search(r'SERVICE_KEY\s*=\s*\(([^)]+)\)', content, re.DOTALL)
-    key = "".join(re.findall(r'"([^"]*)"', m.group(1)))
-    base = re.search(r'SUPABASE_BASE\s*=\s*"([^"]+)"', content).group(1)
-    return base, key
+    config_path = os.path.expanduser("~/.openclaw/workspace/plugins/beton-gtm/config.local.json")
+    with open(config_path) as f:
+        cfg = json.load(f)
+    return cfg["supabaseUrl"], cfg["supabaseKey"]
 
 import httpx
 

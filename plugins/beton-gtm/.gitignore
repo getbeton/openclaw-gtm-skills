@@ -1,0 +1,32 @@
+# Secrets — never commit
+integrations/
+config.local.json
+config/config.local.json
+
+# Python
+__pycache__/
+*.pyc
+
+# Campaign data with PII (contact emails, names, email bodies)
+campaign-*/bump_data.csv
+campaign-*/blast_analysis.csv
+campaign-*/blasted_contacts.csv
+campaign-*/all_emails.csv
+campaign-*/ws3_sales_leaders.json
+campaign-*/ws3_sales_emails.json
+campaign-*/ws3_contacts.json
+campaign-6sense/ws2_posthog_continue.json
+campaign-6sense/ws4_*.json
+campaign-6sense/ws4_*.py
+
+# Large enrichment / domain data
+6sense_300_domains.json
+apollo_*.json
+*_results.json
+*_contacts.json
+gap_fill_*.json
+wave*_revealed_contacts.json
+t1_contacts.json
+campaign_waves.json
+churn_campaign_300.json
+all_campaign_contacts.json

@@ -36,8 +36,8 @@ SUPABASE_DB_URL = (
 SUPABASE_URL = "YOUR_SUPABASE_URL"
 SUPABASE_KEY = (
     "YOUR_SUPABASE_SERVICE_KEY"
-    ".YOUR_SUPABASE_KEY_MIDDLE"
-    ""
+    ".eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFteWd0d29xdWpsdWVwaWJjbmZzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3Mzg0OTIxMywiZXhwIjoyMDg5NDI1MjEzfQ"
+    ".f-dQgjCylDEaOJAcqNQwovL_v93--QLX3EI6kXqrdos"
 )
 
 DATA_DIR = Path("YOUR_WORKSPACE_PATH/beton/sketches/sales-research/data")

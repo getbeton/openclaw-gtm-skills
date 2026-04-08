@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beton GTM System v2</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; }
+  .slide { min-height: 100vh; padding: 60px 80px; display: flex; gap: 60px; align-items: center; border-bottom: 1px solid #222; }
+  .slide:nth-child(even) { background: #0f0f0f; }
+  .slide-content { flex: 1; min-width: 300px; }
+  .slide-chart { flex: 1.2; min-width: 400px; }
+  .slide-wide { flex-direction: column; }
+  .slide-wide .slide-chart { width: 100%; min-width: unset; }
+  .slide-wide .slide-content { width: 100%; min-width: unset; }
+  h1 { font-size: 42px; font-weight: 700; margin-bottom: 12px; color: #fff; }
+  h2 { font-size: 32px; font-weight: 600; margin-bottom: 24px; color: #fff; }
+  h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+  p { font-size: 17px; line-height: 1.6; color: #bbb; margin-bottom: 16px; }
+  ul { list-style: none; padding: 0; }
+  ul li { font-size: 16px; line-height: 1.7; color: #ccc; padding: 6px 0 6px 20px; position: relative; }
+  ul li::before { content: ''; position: absolute; left: 0; top: 14px; width: 8px; height: 8px; border-radius: 50%; background: #4a9eff; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 13px; font-weight: 600; margin-right: 6px; }
+  .tag-blue { background: #1a3a5c; color: #6ab0ff; }
+  .tag-green { background: #1a3c1a; color: #6aff6a; }
+  .tag-orange { background: #3c2a1a; color: #ffaa6a; }
+  .tag-red { background: #3c1a1a; color: #ff6a6a; }
+  .tag-purple { background: #2a1a3c; color: #aa6aff; }
+  .tag-cyan { background: #1a3c3c; color: #6affff; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  .stat { background: #161616; border: 1px solid #2a2a2a; border-radius: 8px; padding: 16px; }
+  .stat-num { font-size: 28px; font-weight: 700; color: #4a9eff; }
+  .stat-label { font-size: 13px; color: #888; margin-top: 4px; }
+  .mermaid { background: #161616; border-radius: 8px; padding: 20px; overflow-x: auto; }
+  .mermaid svg { max-width: 100%; }
+  .title-slide { justify-content: center; flex-direction: column; text-align: center; }
+  .title-slide h1 { font-size: 56px; margin-bottom: 16px; }
+  .title-slide p { font-size: 20px; max-width: 700px; margin: 0 auto; }
+  .note { font-size: 13px; color: #666; margin-top: 12px; font-style: italic; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #2a2a2a; font-size: 14px; }
+  th { color: #888; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
+  td { color: #ccc; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-left: 8px; vertical-align: middle; }
+  .badge-free { background: #1a3c1a; color: #6aff6a; }
+  .badge-paid { background: #3c2a1a; color: #ffaa6a; }
+  .badge-new { background: #1a3a5c; color: #6ab0ff; }
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 24px; }
+  .comparison > div { background: #161616; border: 1px solid #2a2a2a; border-radius: 8px; padding: 20px; }
+  .comparison h4 { color: #888; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<!-- Slide 1: Title -->
+<div class="slide title-slide">
+  <h3 style="color:#4a9eff; margin-bottom: 8px;">v2</h3>
+  <h1>Beton GTM System</h1>
+  <p>Agent-first pipeline from raw domains to validated multi-thread outreach. Apollo-first research, deterministic scoring, email verification gate. Same quality for 1 domain or 100,000.</p>
+  <div class="stat-grid" style="max-width:600px; margin: 30px auto 0;">
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">pipeline steps (was 12)</div></div>
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">parallel threads per company</div></div>
+    <div class="stat"><div class="stat-num">180</div><div class="stat-label">emails/day capacity</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">catch-all emails allowed</div></div>
+  </div>
+</div>
+
+<!-- Slide 2: v1 vs v2 -->
+<div class="slide">
+  <div class="slide-content">
+    <h3>What changed</h3>
+    <h2>v1 &rarr; v2</h2>
+    <div class="comparison">
+      <div>
+        <h4>v1 (12 steps, 30 scripts)</h4>
+        <ul>
+          <li>Manual script-by-script execution</li>
+          <li>5 duplicated Apollo wrappers</li>
+          <li>5 duplicated Firecrawl wrappers</li>
+          <li>3 different Claude classifiers</li>
+          <li>No email verification gate</li>
+          <li>No DNC list enforcement</li>
+          <li>No cross-campaign dedup</li>
+          <li>Claude-based scoring (variable)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>v2 (7 steps, 1 CLI)</h4>
+        <ul>
+          <li>Agent-first: skills + Python modules</li>
+          <li>1 Apollo client, 1 Firecrawl client</li>
+          <li>Apollo org enrichment before crawl</li>
+          <li>Role-based signals feed scoring</li>
+          <li>Dedicated email verification gate</li>
+          <li>DNC + cross-campaign dedup</li>
+          <li>Hard reject catch-all emails</li>
+          <li>Deterministic scoring (pure rules)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-chart">
+    <div class="mermaid">
+graph TD
+    subgraph "v1: 12 Steps"
+        direction LR
+        V1A["Input"] --> V1B["Intake"]
+        V1B --> V1C["Prefilter"]
+        V1C --> V1D["Research"]
+        V1D --> V1E["Sales Org"]
+        V1E --> V1F["Signals"]
+        V1F --> V1G["Segment"]
+        V1G --> V1H["Contacts"]
+        V1H --> V1I["Hypotheses"]
+        V1I --> V1J["Sequences"]
+        V1J --> V1K["Enroll"]
+        V1K --> V1L["Deck"]
+    end
+
+    subgraph "v2: 7 Steps"
+        direction LR
+        V2A["1. Input"] --> V2B["2. Prefilter"]
+        V2B --> V2C["3. Research"]
+        V2C --> V2D["4. Score"]
+        V2D --> V2E["5. Contacts"]
+        V2E --> V2F["6. Sequences"]
+        V2F --> V2G["7. Enroll"]
+    end
+
+    style V2C fill:#1a3a5c,stroke:#4a9eff,color:#fff
+    style V2D fill:#2a1a3c,stroke:#aa6aff,color:#fff
+    style V2E fill:#1a3c1a,stroke:#6aff6a,color:#fff
+    style V2G fill:#3c2a1a,stroke:#ffaa6a,color:#fff
+    </div>
+  </div>
+</div>
+
+<!-- Slide 3: Full Pipeline -->
+<div class="slide slide-wide">
+  <div class="slide-content">
+    <h3>Architecture</h3>
+    <h2>7-Step Pipeline</h2>
+    <p>Agent-first design: each step is a skill (SKILL.md) that Claude Code / OpenClaw executes, backed by a Python module. One CLI entry point: <code>python beton.py run domain.com</code>. Every step reads/writes Supabase. Resume from any point via per-company <code>pipeline_status</code>.</p>
+  </div>
+  <div class="slide-chart">
+    <div class="mermaid">
+graph LR
+    IN["1. Input<br>CSV / CLI / Supabase"] --> PRE["2. Prefilter<br>HTTP reachability<br>parked detection"]
+    PRE --> RES["3. Research<br>Apollo org enrich<br>+ Firecrawl 12 pages<br>+ Claude classify<br>+ Apollo people search"]
+    RES --> SCR["4. Score<br>deterministic ICP rules<br>+ role-based signals<br>+ hypothesis gen"]
+    SCR --> CON["5. Contacts<br>reveal emails<br>+ email verification<br>+ DNC + dedup"]
+    CON --> SEQ["6. Sequences<br>5-step emails<br>+ Haiku validation"]
+    SEQ --> ENR["7. Enroll<br>Apollo sequences<br>+ Telegram notify"]
+
+    style IN fill:#1a3a5c,stroke:#4a9eff,color:#fff
+    style RES fill:#1a3a5c,stroke:#4a9eff,color:#fff
+    style SCR fill:#2a1a3c,stroke:#aa6aff,color:#fff
+    style CON fill:#1a3c1a,stroke:#6aff6a,color:#fff
+    style ENR fill:#3c2a1a,stroke:#ffaa6a,color:#fff
+    </div>
+  </div>
+</div>
+
+<!-- Slide 4: Research (the big merge) -->
+<div class="slide">
+  <div class="slide-content">
+    <h3>Step 3</h3>
+    <h2>Research</h2>
+    <p>Three phases, Apollo-first. Get structured data for free before spending on Firecrawl + Claude.</p>
+    <ul>
+      <li><strong>Phase A: Apollo org enrichment</strong> <span class="badge badge-free">FREE</span> &mdash; employee count, industry, revenue, country, city, founded year, keywords. Filter out companies with &lt;10 or &gt;5000 employees</li>
+      <li><strong>Phase B: Firecrawl + Claude</strong> &mdash; map + scrape 12+ pages (homepage, about, pricing, product, careers, blog, case studies, integrations, docs, changelog). Single Claude call outputs classification, sales org, tech stack, signals, agent goals</li>
+      <li><strong>Phase C: Apollo people search</strong> <span class="badge badge-free">FREE</span> &mdash; search all 4 thread title sets. Store found roles in <code>company_leads</code> (no email reveal yet). These roles feed directly into scoring</li>
+    </ul>
+    <div class="note">One Firecrawl crawl + one Claude call + two free Apollo calls replaces what was 3 separate steps with 3 Claude calls. Store every field &mdash; we're paying for the calls anyway.</div>
+  </div>
+  <div class="slide-chart">
+    <div class="mermaid">
+graph TD
+    D["Domain"] --> A["Phase A<br>Apollo Org Enrichment"]
+
+    A --> |"employee_count<br>industry, revenue<br>keywords"|CHECK{"10-5000<br>employees?"}
+    CHECK --> |no|SKIP["Skip"]
+    CHECK --> |yes|FC["Phase B<br>Firecrawl Map"]
+
+    FC --> PAGES["12+ Pages<br>homepage, about, pricing<br>product, careers, blog<br>case studies, integrations<br>docs, changelog"]
+
+    PAGES --> CL["Single Claude Call"]
+
+    CL --> OUT1["Classification<br>b2b, saas, vertical<br>GTM, pricing"]
+    CL --> OUT2["Sales Org<br>departments, roles<br>hiring signals"]
+    CL --> OUT3["Tech Stack<br>CRM, analytics<br>CDP, tools"]
+    CL --> OUT4["Signals<br>funding, leadership<br>product launches"]
+
+    D --> AP["Phase C<br>Apollo People Search"]
+
+    AP --> L1["Strategy leads<br>CSO, VP Analytics"]
+    AP --> L2["CS leads<br>Dir CS, VP Retention"]
+    AP --> L3["Revenue leads<br>CRO, VP Growth"]
+    AP --> L4["Sales leads<br>VP Sales, Dir Sales"]
+
+    OUT1 --> DB["Supabase"]
+    OUT2 --> DB
+    OUT3 --> DB
+    OUT4 --> DB
+    L1 --> DB
+    L2 --> DB
+    L3 --> DB
+    L4 --> DB
+
+    style A fill:#1a3c1a,stroke:#6aff6a,color:#fff
+    style AP fill:#1a3c1a,stroke:#6aff6a,color:#fff
+    style CL fill:#2a1a3c,stroke:#aa6aff,color:#fff
+    style DB fill:#1a3a5c,stroke:#4a9eff,color:#fff
+    style SKIP fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    </div>
+  </div>
+</div>
+
+<!-- Slide 5: Score + Hypothesis -->
+<div class="slide">
+  <div class="slide-content">
+    <h3>Step 4</h3>
+    <h2>Score + Hypothesis</h2>
+    <p>Scoring is deterministic &mdash; pure rules, no Claude variability. Role-based signals from Apollo people search (step 3) directly boost ICP scores.</p>
+    <table>
+      <tr><th>Signal</th><th>Points</th><th>Why</th></tr>
+      <tr><td>Is B2B SaaS</td><td>+20</td><td>Core ICP requirement</td></tr>
+      <tr><td>Matching vertical</td><td>+15</td><td>Fintech, HR, analytics, etc.</td></tr>
+      <tr><td>Has VP/Dir RevOps</td><td>+15</td><td>Dedicated revenue ops function</td></tr>
+      <tr><td>50-500 employees</td><td>+12</td><td>Mid-market sweet spot</td></tr>
+      <tr><td>Has Head of Data / VP Analytics</td><td>+10</td><td>Data-driven organization</td></tr>
+      <tr><td>Has VP/Dir CS</td><td>+10</td><td>Retention matters to them</td></tr>
+      <tr><td>Has CRO or VP Growth</td><td>+8</td><td>Growth-focused GTM</td></tr>
+      <tr><td>Multiple relevant roles</td><td>+5</td><td>Well-staffed GTM org</td></tr>
+      <tr><td>PLG or hybrid GTM</td><td>+5</td><td>Need signal routing</td></tr>
+    </table>
+    <div class="note">T1 (&ge;70), T2 (50-69) proceed to contacts. T3 (30-49) and pass (&lt;30) stop here. Hypotheses generated by agent for T1/T2 only: "what can we sell them?"</div>
+  </div>
+  <div class="slide-chart">
+    <div class="mermaid">
+graph TD
+    subgraph "Inputs (all from Supabase)"
+        CL["Classification<br>b2b, saas, vertical"]
+        SO["Sales Org<br>headcount, hiring"]
+        TS["Tech Stack<br>CRM, analytics, tools"]
+        SG["Signals<br>funding, hiring"]
+        LD["Company Leads<br>found roles per thread"]
+    end
+
+    CL --> SC["Deterministic Scorer<br>pure Python rules"]
+    SO --> SC
+    TS --> SC
+    SG --> SC
+    LD --> SC
+
+    SC --> T1["T1: score >= 70"]
+    SC --> T2["T2: score 50-69"]
+    SC --> T3["T3 / Pass: < 50"]
+
+    T1 --> HG["Agent Hypothesis<br>'what can we sell?'"]
+    T2 --> HG
+    T3 --> STOP["Pipeline stops"]
+
+    HG --> HYP["hypotheses table<br>+ company_hypotheses"]
+
+    style SC fill:#2a1a3c,stroke:#aa6aff,color:#fff
+    style T1 fill:#1a3c1a,stroke:#6aff6a,color:#fff
+    style T2 fill:#1a3c1a,stroke:#6aff6a,color:#fff
+    style STOP fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    style HG fill:#1a3a5c,stroke:#4a9eff,color:#fff
+    </div>
+  </div>
+</div>
+
+<!-- Slide 6: Contacts (Reveal + Verify) -->
+<div class="slide">
+  <div class="slide-content">
+    <h3>Step 5</h3>
+    <h2>Contacts: Reveal + Verify</h2>
+    <p>People were already found in step 3 (Phase C). This step only reveals emails and runs them through verification. No gap fill &mdash; if a thread has 0 valid contacts, skip it.</p>
+    <ul>
+      <li><strong>Reveal</strong> <span class="badge badge-paid">1 CREDIT</span> &mdash; Apollo <code>people/match</code> on top lead per thread from <code>company_leads</code></li>
+      <li><strong>Role-based filter</strong> &mdash; Hard reject: info@, support@, noreply@, admin@, sales@, marketing@, hr@, billing@</li>
+      <li><strong>Email verification</strong> <span class="badge badge-new">NEW</span> &mdash; Dedicated provider (MillionVerifier / ZeroBounce / Reoon). Hard reject: invalid, disposable, spam trap, catch-all</li>
+      <li><strong>DNC check</strong> <span class="badge badge-new">NEW</span> &mdash; Check <code>dnc_list</code> table for email or domain match</li>
+      <li><strong>Cross-campaign dedup</strong> <span class="badge badge-new">NEW</span> &mdash; Skip if same email contacted in last 90 days</li>
+    </ul>
+    <div class="note">Credits only spent on T1/T2 companies (scored in step 4). Catch-all emails are hard rejected &mdash; they damage sender reputation.</div>
+  </div>
+  <div class="slide-chart">
+    <div class="mermaid">
+graph TD
+    CL["company_leads<br>(from step 3)"] --> REV["Apollo Reveal<br>1 credit per contact"]
+
+    REV --> |"has email"|F1{"Role-based<br>email?"}
+    REV --> |"no email"|SKIP1["Skip"]
+
+    F1 --> |"info@ support@<br>noreply@ etc"|SKIP2["Reject"]
+    F1 --> |"personal email"|MV["Email Verification<br>dedicated provider"]
+
+    MV --> |"valid"|F3{"On DNC<br>list?"}
+    MV --> |"invalid"|SKIP3["Reject"]
+    MV --> |"catch-all"|SKIP4["Reject"]
+    MV --> |"disposable"|SKIP5["Reject"]
+
+    F3 --> |"yes"|SKIP6["Reject"]
+    F3 --> |"no"|F4{"Contacted in<br>last 90 days?"}
+
+    F4 --> |"yes"|SKIP7["Reject"]
+    F4 --> |"no"|READY["Contact Ready"]
+
+    READY --> DB["contacts table<br>+ email_validations"]
+
+    style REV fill:#1a3a5c,stroke:#4a9eff,color:#fff
+    style MV fill:#2a1a3c,stroke:#aa6aff,color:#fff
+    style READY fill:#1a3c1a,stroke:#6aff6a,color:#fff
+    style SKIP1 fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    style SKIP2 fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    style SKIP3 fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    style SKIP4 fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    style SKIP5 fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    style SKIP6 fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    style SKIP7 fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    </div>
+  </div>
+</div>
+
+<!-- Slide 7: Sequence Drafting -->
+<div class="slide">
+  <div class="slide-content">
+    <h3>Step 6</h3>
+    <h2>Sequence Drafting</h2>
+    <ul>
+      <li><strong>Per contact</strong> &mdash; 5-step email sequence personalized to thread, role, company vertical, and pain hypothesis</li>
+      <li><strong>4 thread templates</strong> map to 4 angles: churn signals (strategy), at-risk users (CS), expansion signals (revenue), intent data gap (sales)</li>
+      <li><strong>Vertical mapping</strong> &mdash; 10+ verticals with specific user_type, data_action, churn/expansion examples</li>
+      <li><strong>Writing rules enforced</strong> &mdash; All lowercase, 60 word max, no banned words, concrete CTAs, breakup mentions open source</li>
+      <li><strong>Pre-send validation</strong> &mdash; Haiku checks that company facts, signals, and contact data are accurate before approving</li>
+    </ul>
+  </div>
+  <div class="slide-chart">
+    <div class="mermaid">
+graph TD
+    HYP["Pain Hypothesis"] --> GEN["Email Generator"]
+    CON["Contact + Role + Thread"] --> GEN
+    VM["Vertical Mapping<br>10+ verticals"] --> GEN
+    WR["Writing Rules<br>all lowercase, 60 words"] --> GEN
+
+    GEN --> |"per contact"|SEQ["5-Step Sequence"]
+
+    subgraph "5 Steps"
+        E1["Step 1: Hook<br>signal-led opening<br>day 0"]
+        E2["Step 2: Bump<br>'did you have time?'<br>+1 bday"]
+        E3["Step 3: Depth<br>backtesting / validation<br>+2 days"]
+        E4["Step 4: Practical<br>deployment / pricing<br>+3 days"]
+        E5["Step 5: Breakup<br>open source exit<br>+2 days"]
+    end
+
+    SEQ --> E1 --> E2 --> E3 --> E4 --> E5
+
+    E5 --> VAL["Pre-Send Validation<br>Haiku sanity check"]
+
+    VAL --> |"PASS"|CF["outreach table<br>step1-5 subjects + bodies"]
+    VAL --> |"FAIL"|FLAG["Flag for Review"]
+
+    style GEN fill:#2a1a3c,stroke:#aa6aff,color:#fff
+    style CF fill:#1a3c1a,stroke:#6aff6a,color:#fff
+    style FLAG fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    </div>
+  </div>
+</div>
+
+<!-- Slide 8: Full Sequence Diagram -->
+<div class="slide slide-wide">
+  <div class="slide-content">
+    <h3>End-to-End</h3>
+    <h2>Full System Sequence</h2>
+    <p>Complete flow from a single domain to emails landing in inbox. Every step logs to Supabase. Resume from any point. Same sequence for 1 company or 100,000.</p>
+  </div>
+  <div class="slide-chart">
+    <div class="mermaid">
+sequenceDiagram
+    actor U as Operator / Agent
+    participant SB as Supabase
+    participant AP as Apollo API
+    participant FC as Firecrawl
+    participant CL as Claude
+    participant MV as Email Verifier
+    participant UI as Apollo UI
+    participant TG as Telegram
+
+    U->>SB: 1. Input domains (CLI/CSV/query)
+    SB-->>SB: 2. Prefilter: HTTP reachability
+
+    loop For each reachable domain
+        SB->>AP: 3a. Org enrichment (FREE)
+        AP-->>SB: employee_count, industry, revenue
+
+        SB->>FC: 3b. Crawl 12+ pages
+        FC-->>CL: page content + Apollo data
+        CL-->>SB: classification + sales org + tech stack + signals
+
+        SB->>AP: 3c. People search (FREE, no reveal)
+        AP-->>SB: found leads per thread (no emails)
+    end
+
+    Note over SB,CL: Companies researched with leads found
+
+    loop For each researched company
+        SB->>SB: 4a. Deterministic ICP scoring (role signals)
+        SB->>CL: 4b. Hypothesis: "what can we sell?" (T1/T2 only)
+        CL-->>SB: pain hypothesis + personalization hook
+    end
+
+    Note over SB,AP: T1/T2 companies scored with hypotheses
+
+    loop For each T1/T2 company
+        SB->>AP: 5a. Reveal top lead per thread (1 credit each)
+        AP-->>SB: name + email
+        SB->>MV: 5b. Verify all emails (bulk)
+        MV-->>SB: valid / invalid / catch-all / role-based
+        SB-->>SB: 5c. DNC check + 90-day dedup
+    end
+
+    Note over SB,MV: Only verified personal emails proceed
+
+    loop For each validated contact
+        SB->>CL: 6. Generate 5-step sequence
+        CL-->>SB: email subjects + bodies
+        SB->>CL: 6b. Haiku pre-send validation
+        CL-->>SB: PASS / FAIL
+    end
+
+    SB->>AP: 7a. Create contacts + custom fields
+    AP-->>SB: contact_id
+    SB->>AP: 7b. Add to sequences + round-robin mailbox
+    AP-->>SB: enrolled
+
+    SB->>TG: 7c. Notify Vlad (contacts enrolled, sequences used)
+    U->>UI: 7d. Create/activate sequences (manual)
+
+    Note over AP,UI: Apollo handles scheduling, limits, bounces, OOO
+
+    AP->>AP: Send step 1 (day 0)
+    AP->>AP: Send step 2 (+1 bday)
+    AP->>AP: Send step 3 (+2 days)
+    AP->>AP: Send step 4 (+3 days)
+    AP->>AP: Send step 5 (+2 days)
+    </div>
+  </div>
+</div>
+
+<!-- Slide 9: 4-Thread Structure -->
+<div class="slide">
+  <div class="slide-content">
+    <h3>Campaign Design</h3>
+    <h2>4-Thread Choreography</h2>
+    <p>Each company gets up to 4 parallel threads targeting different decision-makers. Threads are staggered so it looks like coordinated outreach. Leads found in step 3, revealed in step 5.</p>
+    <table>
+      <tr><th>Thread</th><th>Target</th><th>Subject Pattern</th></tr>
+      <tr><td><span class="tag tag-blue">Strategy</span></td><td>CSO, VP Analytics</td><td>{company}'s {user_type} churn signals</td></tr>
+      <tr><td><span class="tag tag-green">CS</span></td><td>Dir CS, VP Retention</td><td>saving {company}'s at-risk {user_type}</td></tr>
+      <tr><td><span class="tag tag-orange">Revenue</span></td><td>CRO, VP Growth</td><td>{company}'s expansion signals</td></tr>
+      <tr><td><span class="tag tag-purple">Sales</span></td><td>VP Sales, Dir Sales</td><td>{company}'s pipeline signals beyond intent</td></tr>
+    </table>
+    <div class="note">Per company: up to 20 emails over ~10 days across 4 threads. Empty threads are skipped, not gap-filled.</div>
+  </div>
+  <div class="slide-chart">
+    <div class="mermaid">
+gantt
+    title Per-Company Thread Timeline
+    dateFormat X
+    axisFormat Day %s
+
+    section Strategy
+    Email 1 (hook)       :s1, 0, 1
+    Email 2 (bump)       :s2, 1, 2
+    Email 3 (depth)      :s3, 3, 4
+    Email 4 (practical)  :s4, 6, 7
+    Email 5 (breakup)    :s5, 8, 9
+
+    section CS
+    Email 1 (hook)       :c1, 2, 3
+    Email 2 (bump)       :c2, 3, 4
+    Email 3 (depth)      :c3, 5, 6
+    Email 4 (practical)  :c4, 8, 9
+    Email 5 (breakup)    :c5, 10, 11
+
+    section Revenue
+    Email 1 (hook)       :r1, 4, 5
+    Email 2 (bump)       :r2, 5, 6
+    Email 3 (depth)      :r3, 7, 8
+    Email 4 (practical)  :r4, 10, 11
+    Email 5 (breakup)    :r5, 12, 13
+
+    section Sales
+    Email 1 (hook)       :l1, 0, 1
+    Email 2 (bump)       :l2, 1, 2
+    Email 3 (depth)      :l3, 3, 4
+    Email 4 (practical)  :l4, 6, 7
+    Email 5 (breakup)    :l5, 8, 9
+    </div>
+  </div>
+</div>
+
+<!-- Slide 10: Email Validation -->
+<div class="slide">
+  <div class="slide-content">
+    <h3>New in v2</h3>
+    <h2>Email Validation Gate</h2>
+    <p>Every email passes through a 4-layer validation chain before any sequence is generated. No exceptions.</p>
+    <table>
+      <tr><th>Layer</th><th>Check</th><th>Action</th></tr>
+      <tr><td><span class="tag tag-blue">1</span></td><td>Role-based email (info@, support@, noreply@)</td><td>Hard reject</td></tr>
+      <tr><td><span class="tag tag-purple">2</span></td><td>Email verification (invalid, disposable, spam trap)</td><td>Hard reject</td></tr>
+      <tr><td><span class="tag tag-orange">3</span></td><td>Catch-all domain</td><td>Hard reject</td></tr>
+      <tr><td><span class="tag tag-red">4</span></td><td>DNC list or contacted in last 90 days</td><td>Hard reject</td></tr>
+    </table>
+    <p style="margin-top: 20px;">Results cached in <code>email_validations</code> table &mdash; never re-verify the same email. DNC list managed via CLI: <code>python beton.py dnc add user@example.com</code></p>
+    <div class="note">Catch-all emails are rejected with zero exceptions. They damage sender reputation and inflate bounce rates.</div>
+  </div>
+  <div class="slide-chart">
+    <div class="mermaid">
+graph TD
+    subgraph "Supabase Tables"
+        EV["email_validations<br>cached results"]
+        DNC["dnc_list<br>emails + domains"]
+        CON["contacts<br>90-day history"]
+    end
+
+    EMAIL["Revealed Email"] --> CACHE{"Already<br>verified?"}
+    CACHE --> |"yes, valid"|PASS
+    CACHE --> |"yes, invalid"|REJECT
+    CACHE --> |"no"|VERIFY["Email Verifier API<br>bulk verification"]
+
+    VERIFY --> |"valid"|DNC_CHECK{"On DNC?"}
+    VERIFY --> |"invalid / disposable<br>spam_trap / catch_all"|REJECT["Reject + cache"]
+
+    DNC_CHECK --> |"yes"|REJECT
+    DNC_CHECK --> |"no"|DEDUP{"Contacted in<br>last 90 days?"}
+
+    DEDUP --> |"yes"|REJECT
+    DEDUP --> |"no"|PASS["Contact Ready"]
+
+    PASS --> DB["Write to contacts<br>email_validated = true"]
+    REJECT --> DB2["Write to email_validations<br>reason cached"]
+
+    style VERIFY fill:#2a1a3c,stroke:#aa6aff,color:#fff
+    style PASS fill:#1a3c1a,stroke:#6aff6a,color:#fff
+    style REJECT fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    </div>
+  </div>
+</div>
+
+<!-- Slide 11: CLI + Safety -->
+<div class="slide">
+  <div class="slide-content">
+    <h3>Operations</h3>
+    <h2>CLI + Safety Protocol</h2>
+    <p>Single entry point for everything. Same testing protocol as v1.</p>
+    <table>
+      <tr><th>Command</th><th>What it does</th></tr>
+      <tr><td><code>beton.py run domain.com</code></td><td>Full pipeline, single domain</td></tr>
+      <tr><td><code>beton.py run --csv file.csv</code></td><td>Full pipeline, CSV input</td></tr>
+      <tr><td><code>beton.py run --from research</code></td><td>Resume from step 3</td></tr>
+      <tr><td><code>beton.py run --only contacts</code></td><td>Single step only</td></tr>
+      <tr><td><code>beton.py run --dry-run</code></td><td>No side effects</td></tr>
+      <tr><td><code>beton.py step enroll --test 5</code></td><td>Phase B test enrollment</td></tr>
+      <tr><td><code>beton.py status</code></td><td>Pipeline stats by step</td></tr>
+      <tr><td><code>beton.py dnc add email</code></td><td>Add to DNC list</td></tr>
+    </table>
+  </div>
+  <div class="slide-chart">
+    <div class="mermaid">
+graph TD
+    DR["--dry-run<br>preview, no API calls"] --> A["Phase A<br>--test 1<br>1 contact per sequence"]
+    A --> CHECK1{"Preview OK?<br>Rendering?<br>Threading?"}
+    CHECK1 --> |yes|B["Phase B<br>--test 5<br>5 contacts, activate"]
+    CHECK1 --> |no|FIX1["Fix content"]
+    FIX1 --> A
+
+    B --> WAIT["Wait 24h"]
+    WAIT --> CHECK2{"Bounces?<br>Spam?<br>Timing issues?"}
+    CHECK2 --> |clean|C["Phase C<br>Bulk enroll remaining"]
+    CHECK2 --> |issues|FIX2["Investigate + fix"]
+    FIX2 --> B
+
+    C --> NOTIFY["Telegram notification<br>contacts enrolled<br>sequences used<br>action: activate in Apollo UI"]
+
+    style DR fill:#1a3a5c,stroke:#4a9eff,color:#fff
+    style C fill:#1a3c1a,stroke:#6aff6a,color:#fff
+    style FIX1 fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    style FIX2 fill:#3c1a1a,stroke:#ff6a6a,color:#fff
+    style NOTIFY fill:#3c2a1a,stroke:#ffaa6a,color:#fff
+    </div>
+  </div>
+</div>
+
+<!-- Slide 12: Supabase Schema -->
+<div class="slide slide-wide">
+  <div class="slide-content">
+    <h3>Data</h3>
+    <h2>Supabase Schema</h2>
+    <p>Every step reads and writes Supabase. Per-company <code>pipeline_status</code> enables resume from any point. New tables for email validation, DNC list, and pre-reveal leads.</p>
+  </div>
+  <div class="slide-chart">
+    <div class="mermaid">
+erDiagram
+    companies ||--o{ company_classification : has
+    companies ||--o{ company_sales_org : has
+    companies ||--o{ company_tech_stack : has
+    companies ||--o{ signals : has
+    companies ||--o{ company_leads : has
+    companies ||--o{ company_segments : has
+    companies ||--o{ contacts : has
+    companies ||--o{ company_hypotheses : has
+    contacts ||--o{ email_validations : verified_by
+    contacts ||--o{ outreach : receives
+    hypotheses ||--o{ company_hypotheses : linked
+
+    companies {
+        uuid id PK
+        text domain
+        text name
+        text pipeline_status
+        int employee_count
+        text industry
+        text country
+    }
+
+    company_leads {
+        uuid id PK
+        uuid company_id FK
+        text apollo_person_id
+        text name
+        text title
+        text thread
+    }
+
+    contacts {
+        uuid id PK
+        uuid company_id FK
+        text email
+        bool email_validated
+        text email_validation_result
+        text thread
+    }
+
+    email_validations {
+        uuid id PK
+        text email
+        text provider
+        text result
+        bool is_catch_all
+        bool is_role_based
+    }
+
+    dnc_list {
+        uuid id PK
+        text email
+        text domain
+        text reason
+    }
+    </div>
+  </div>
+</div>
+
+<!-- Slide 13: Sending Infrastructure -->
+<div class="slide">
+  <div class="slide-content">
+    <h3>Infrastructure</h3>
+    <h2>Sending Capacity</h2>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-num">3</div><div class="stat-label">connected mailboxes</div></div>
+      <div class="stat"><div class="stat-num">180</div><div class="stat-label">emails/day total</div></div>
+      <div class="stat"><div class="stat-num">60</div><div class="stat-label">per mailbox/day limit</div></div>
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">steps per contact</div></div>
+    </div>
+    <table style="margin-top: 30px;">
+      <tr><th>Mailbox</th><th>Capacity</th><th>Role</th></tr>
+      <tr><td>v@getbeton.info</td><td>60/day</td><td>Primary</td></tr>
+      <tr><td>vlad@getbeton.info</td><td>60/day</td><td>Primary</td></tr>
+      <tr><td>vlad.nadymov@getbeton.info</td><td>60/day</td><td>Available</td></tr>
+    </table>
+    <div class="note">Round-robin assignment via API. Apollo handles scheduling, bounce tracking, OOO detection, reply-stops-sequence.</div>
+  </div>
+  <div class="slide-chart">
+    <div class="mermaid">
+graph LR
+    subgraph "Daily Capacity"
+        M1["v@<br>60/day"]
+        M2["vlad@<br>60/day"]
+        M3["vlad.nadymov@<br>60/day"]
+    end
+
+    M1 --> RR["Round-Robin<br>Assignment"]
+    M2 --> RR
+    M3 --> RR
+
+    RR --> D["180 emails/day"]
+    D --> AP["Apollo Scheduler<br>daily limits<br>bounce tracking<br>OOO detection<br>reply stops sequence"]
+
+    style D fill:#1a3c1a,stroke:#6aff6a,color:#fff
+    style RR fill:#2a1a3c,stroke:#aa6aff,color:#fff
+    </div>
+  </div>
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'dark',
+  themeVariables: {
+    primaryColor: '#1a3a5c',
+    primaryTextColor: '#e0e0e0',
+    primaryBorderColor: '#4a9eff',
+    lineColor: '#555',
+    secondaryColor: '#1a3c1a',
+    tertiaryColor: '#2a1a3c',
+    fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+    fontSize: '14px',
+  },
+  flowchart: { curve: 'basis' },
+  sequence: { mirrorActors: false },
+});
+</script>
+
+</body>
+</html>

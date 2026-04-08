@@ -30,12 +30,10 @@ import httpx
 # ── Config ────────────────────────────────────────────────────────────────────
 
 def _get_supabase_creds():
-    with open(os.path.expanduser("~/.openclaw/workspace/plugins/beton-gtm/scripts/run_prefilter.py")) as f:
-        content = f.read()
-    m = re.search(r'SERVICE_KEY\s*=\s*\(([^)]+)\)', content, re.DOTALL)
-    key = "".join(re.findall(r'"([^"]*)"', m.group(1)))
-    base = re.search(r'SUPABASE_BASE\s*=\s*"([^"]+)"', content).group(1)
-    return base, key
+    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "config.local.json")
+    with open(os.path.abspath(config_path)) as f:
+        cfg = json.load(f)
+    return cfg["supabaseUrl"], cfg["supabaseKey"]
 
 SUPABASE_BASE, SERVICE_KEY = _get_supabase_creds()
 SUPABASE_H = {
@@ -63,18 +61,87 @@ HEADCOUNT_TIERS = {
 }
 
 VERTICAL_MAP = {
-    # icp_definition.industry → company_classification.vertical keywords
-    "devtools_infra": ["developer tools", "developer", "devtools", "infrastructure", "platform", "api", "sdk", "cloud", "devops", "ci/cd", "monitoring"],
-    "saas_b2b": ["saas", "software", "b2b software", "productivity", "workflow"],
-    "fintech": ["fintech", "finance", "payments", "banking", "insurtech", "lending"],
-    "ecommerce": ["ecommerce", "e-commerce", "retail", "marketplace", "shopify"],
-    "healthtech": ["healthtech", "healthcare", "health", "medical", "biotech"],
-    "edtech": ["edtech", "education", "learning", "e-learning"],
-    "hrtech": ["hrtech", "hr", "human resources", "recruiting", "talent", "people ops"],
-    "martech": ["martech", "marketing", "advertising", "seo", "email marketing"],
-    "revops": ["revenue operations", "revops", "sales intelligence", "crm", "sales enablement"],
-    "analytics": ["analytics", "data", "business intelligence", "bi", "reporting"],
-    "security": ["security", "cybersecurity", "compliance", "privacy"],
+    # icp_definition.industry slug → keywords in company_classification.vertical
+    # Order matters: first match wins. More specific slugs should come before generic ones.
+    "devtools_infra":       ["devtools", "developer tool", "developer platform", "developer experience",
+                             "platform engineering", "mlops", "ai infrastructure", "ai devtools", "ml platform",
+                             "data infrastructure", "open source tools", "api platform", "sdk platform",
+                             "devops platform", "ci/cd", "observability platform", "monitoring platform",
+                             "cloud infrastructure", "database platform", "infrastructure software"],
+    "cybersecurity":        ["cybersecurity", "cyber security", "network security", "application security",
+                             "identity and access", "iam ", "soc ", "siem", "fraud detection", "data privacy",
+                             "compliance platform", "zero trust", "endpoint security"],
+    "ai_ml":                ["artificial intelligence", "machine learning", "llm", "generative ai", "computer vision",
+                             "nlp", "natural language", "ai tools", "ai automation", "ai platform", "ai agents",
+                             "ai infrastructure", "ai devtools", "ai image", "ai video", "ai content",
+                             "ai productivity", "ai assistant", "ai workflow"],
+    "analytics_bi":         ["analytics platform", "business intelligence", " bi ", "data analytics",
+                             "data visualization", "reporting platform", "data platform", "revenue analytics",
+                             "product analytics", "marketing analytics", "customer analytics"],
+    "fintech":              ["fintech", "financial technology", "financial services", "payments platform",
+                             "payment processing", "banking platform", "neobank", "wealthtech", "crypto",
+                             "blockchain", "defi", "accounting software", "tax software", "payroll software",
+                             "billing platform", "invoicing", "expense management", "spend management"],
+    "insurtech":            ["insurtech", "insurance technology", "insurance platform", "insurance software"],
+    "payments_banking":     ["payments", "payment gateway", "banking", "remittance", "money transfer", "lending"],
+    "healthtech":           ["healthtech", "health technology", "healthcare platform", "health care software",
+                             "medical software", "clinical", "telemedicine", "telehealth", "mental health platform",
+                             "dental software", "health analytics", "patient management", "ehr ", "emr "],
+    "biotech_pharma":       ["biotech", "pharma", "pharmaceutical", "drug discovery", "life sciences",
+                             "genomics", "diagnostics"],
+    "edtech":               ["edtech", "education technology", "e-learning", "online learning", "learning platform",
+                             "lms ", "course platform", "tutoring", "higher education software", "academic software",
+                             "student management", "school management"],
+    "hrtech":               ["hr tech", "hrtech", "human resources software", "hris", "people ops",
+                             "employee management", "performance management", "workforce management",
+                             "employee engagement", "payroll platform", "benefits platform"],
+    "recruiting_staffing":  ["recruiting", "recruitment platform", "applicant tracking", "ats ", "talent acquisition",
+                             "staffing platform", "job platform", "hiring platform"],
+    "martech_adtech":       ["martech", "marketing technology", "adtech", "advertising technology",
+                             "digital marketing platform", "marketing automation", "email marketing platform",
+                             "seo platform", "influencer marketing", "content marketing platform",
+                             "social media management", "brand management", "pr platform"],
+    "sales_enablement":     ["sales enablement", "sales intelligence", "sales engagement", "revenue intelligence",
+                             "revenue operations", "revops", "sales automation", "crm ", "customer relationship",
+                             "sales analytics"],
+    "ecommerce_retail":     ["ecommerce", "e-commerce", "online retail", "marketplace platform",
+                             "shopify", "fashion ecommerce", "apparel", "d2c", "direct to consumer",
+                             "luxury retail", "retail platform", "commerce platform"],
+    "real_estate":          ["real estate platform", "commercial real estate", "residential real estate",
+                             "real estate tech", "property listing", "real estate crm", "luxury real estate"],
+    "proptech":             ["proptech", "property technology", "property management software",
+                             "real estate software", "smart building"],
+    "construction_tech":    ["construction tech", "construction management", "construction software",
+                             "building management", "architecture software", "hvac software", "bim "],
+    "travel_hospitality":   ["travel platform", "travel technology", "hospitality software", "hotel software",
+                             "booking platform", "travel booking", "tourism platform", "restaurant software",
+                             "hotel management"],
+    "food_bev":             ["food technology", "food delivery platform", "foodtech", "restaurant tech",
+                             "grocery tech", "food & beverage software", "agritech", "agtech", "food supply"],
+    "logistics_supplychain":["logistics platform", "supply chain software", "fleet management", "shipping platform",
+                             "freight technology", "last mile", "warehousing software", "3pl software",
+                             "route optimization", "trucking software"],
+    "automotive_mobility":  ["automotive software", "fleet platform", "vehicle management", "mobility platform",
+                             "ev software", "telematics", "car rental software", "dealership software"],
+    "gaming":               ["gaming platform", "game development", "esports", "video game", "game engine",
+                             "game analytics", "game monetization"],
+    "media_entertainment":  ["media platform", "entertainment platform", "streaming platform", "content platform",
+                             "digital media", "podcast platform", "video platform", "news platform",
+                             "sports tech", "creator platform"],
+    "cleantech_climatetech":["cleantech", "climate tech", "energy platform", "solar software", "renewable energy",
+                             "sustainability platform", "carbon", "environmental software", "green tech"],
+    "legal_tech":           ["legal tech", "legaltech", "legal platform", "legal software", "law practice",
+                             "contract management", "e-discovery", "compliance software", "legal analytics"],
+    "telecom_iot":          ["telecommunications software", "telecom platform", "iot platform",
+                             "internet of things", "wireless platform", "network management", "5g platform"],
+    "agtech_foodtech":      ["agtech", "agricultural technology", "precision agriculture", "farm management",
+                             "crop management", "livestock management"],
+    "enterprise_saas":      ["saas", "software as a service", "b2b software", "enterprise software",
+                             "productivity software", "workflow platform", "project management software",
+                             "collaboration software", "no-code platform", "low-code platform",
+                             "business software", "information technology"],
+    # catch-all — must be last
+    "other":                [],
 }
 
 # ── Segment matching ──────────────────────────────────────────────────────────
@@ -144,8 +211,9 @@ def score_company_vs_segment(company: dict, segment: dict) -> tuple[int, str, li
         hmin = icp["headcount_range"].get("min", 0)
         hmax = icp["headcount_range"].get("max", 999999)
         if emp is None:
-            reasons.append(f"headcount: unknown (segment wants {hmin}-{hmax})")
-            # score += 0
+            # No data = treat as 0 employees — scores 0 for this dimension, no partial credit
+            reasons.append(f"headcount: no data (treating as 0, segment wants {hmin}-{hmax})")
+            # score += 0  (intentional — no data = no credit, pulls score down naturally)
         elif hmin <= emp <= hmax:
             score += 20
             reasons.append(f"headcount: ✓ {emp} in [{hmin}-{hmax}]")
@@ -155,22 +223,26 @@ def score_company_vs_segment(company: dict, segment: dict) -> tuple[int, str, li
             score += 8
             reasons.append(f"headcount: partial {emp} vs [{hmin}-{hmax}]")
 
-    # Vertical / industry — unknown = 0
+    # Vertical / industry — mismatch = hard disqualifier (like b2b check)
+    # Unknown vertical = skip this dimension (no credit, but not disqualified)
     if "industry" in icp:
         max_score += 20
         industry_key = icp["industry"]
         company_vertical = (cc.get("vertical") or "").lower()
         keywords = VERTICAL_MAP.get(industry_key, [industry_key.lower()])
-        if any(kw in company_vertical for kw in keywords):
+        if industry_key == "other":
+            # "other" segment matches anything — partial credit
+            score += 8
+            reasons.append("vertical: other segment (partial credit)")
+        elif not company_vertical:
+            # Unknown vertical — no credit but not disqualified
+            reasons.append("vertical: unknown (no credit)")
+        elif any(kw in company_vertical for kw in keywords):
             score += 20
             reasons.append(f"vertical: ✓ '{company_vertical}' matches {industry_key}")
-        elif not company_vertical:
-            reasons.append("vertical: unknown")
-            # score += 0
         else:
-            score += 0
-            disqualifiers.append(f"vertical_mismatch")
-            reasons.append(f"vertical: ✗ '{company_vertical}' vs {industry_key}")
+            # Hard disqualifier — wrong industry, skip this segment entirely
+            return 0, f"Disqualified: vertical '{company_vertical}' ✗ {industry_key}", ["vertical_mismatch"]
 
     # RevOps signal — uses open_revops_roles (careers page line count) + hiring_signal
     if icp.get("has_revops"):
@@ -428,7 +500,7 @@ async def process_company(
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 async def main():
-    limit = 100
+    limit = 50000
     concurrency = 10
     dry_run = False
     rescore = False

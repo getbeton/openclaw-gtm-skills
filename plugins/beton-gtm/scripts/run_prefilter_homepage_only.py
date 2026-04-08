@@ -46,7 +46,7 @@ def _load_firecrawl_base():
         with open(_os.path.expanduser("~/.openclaw/workspace/integrations/firecrawl.json")) as _f:
             return _j.load(_f)["base_url"].rstrip("/")
     except Exception:
-        return "http://34.122.195.243:3002"
+        return "http://localhost:3002"
 FIRECRAWL_BASE = _load_firecrawl_base()
 FIRECRAWL_TIMEOUT = 45  # seconds — generous for slow sites
 
