@@ -54,6 +54,8 @@ These are hard rules for any writing I produce. Any single trope used once might
 - No trailing period at end of sentences.
 - Subject line: 3-6 words, no articles ("CFO deals go silent" not "when the CFO deals go silent"). Drop "the", "a", "an" at the start.
 - Thread subject: use the same subject line for all follow-ups in a sequence (re: [subject 1]). Don't invent new subjects per touch.
+- Never use company name in email subjects. Use generic hooks instead (e.g. "expansion signals beyond intent data" not "Acme's expansion signals").
+- Always clean company name for email bodies — strip Inc, LLC, Corp, Ltd, GmbH, .com, and legal suffixes. Use the brand name humans say out loud (e.g. "Salesforce" not "Salesforce, Inc.").
 - No exclamation marks. No emojis.
 - Banned words: AI-powered, game-changer, revolutionize, seamlessly, robust, leverage, utilize, cutting-edge, excited, thrilled, synergy, delve, certainly, streamline
 - No flattery: no "love what you're building", "came across your profile", "impressive work"
