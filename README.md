@@ -151,3 +151,18 @@ Based on [extruct-ai/gtm-skills](https://github.com/extruct-ai/gtm-skills). See 
 ## License
 
 [GNU Affero General Public License v3.0](LICENSE)
+
+
+---
+
+## About
+
+`openclaw-gtm-skills` is part of [Beton](https://www.getbeton.ai/), open-source revenue intelligence. See the dedicated page at [getbeton.ai/oss-tools/openclaw-gtm-skills](https://www.getbeton.ai/oss-tools/openclaw-gtm-skills/) for an overview of the standalone skills and the end-to-end pipeline.
+
+Other open-source tools we maintain:
+
+- [Inspector](https://www.getbeton.ai/) — the flagship signal-discovery agent
+- [DryFit](https://www.getbeton.ai/oss-tools/dryfit/) — synthetic analytics datasets for agent benchmarking
+- [seqd](https://www.getbeton.ai/oss-tools/seqd/) — self-hosted email sequencer
+
+Browse [all open-source tools by Beton →](https://www.getbeton.ai/oss-tools/)
