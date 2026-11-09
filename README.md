@@ -1,5 +1,9 @@
 # openclaw-gtm-skills
 
+> [!WARNING]
+> This repository is archived and read-only. The last Beton code is in [getbeton/inspector](https://github.com/getbeton/inspector). Beton is not in active development.
+> The team now builds [Sell to State](https://www.selltostate.com/?utm_source=github&utm_medium=referral&utm_campaign=beton-repos&utm_content=openclaw-gtm-skills): government tenders and contract awards from official sources in 70+ countries.
+
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 An [OpenClaw](https://openclaw.ai) plugin + skill collection for full-stack B2B outbound GTM. Turns domains into researched, scored, segmented, and outreach-ready prospects. A Clay.com alternative you run yourself.
@@ -157,12 +161,12 @@ Based on [extruct-ai/gtm-skills](https://github.com/extruct-ai/gtm-skills). See 
 
 ## About
 
-`openclaw-gtm-skills` is part of [Beton](https://www.getbeton.ai/), open-source revenue intelligence. See the dedicated page at [getbeton.ai/oss-tools/openclaw-gtm-skills](https://www.getbeton.ai/oss-tools/openclaw-gtm-skills/) for an overview of the standalone skills and the end-to-end pipeline.
+`openclaw-gtm-skills` is part of [Beton](https://github.com/getbeton), open-source revenue intelligence.  for an overview of the standalone skills and the end-to-end pipeline.
 
 Other open-source tools we maintain:
 
-- [Inspector](https://www.getbeton.ai/) — the flagship signal-discovery agent
-- [DryFit](https://www.getbeton.ai/oss-tools/dryfit/) — synthetic analytics datasets for agent benchmarking
-- [seqd](https://www.getbeton.ai/oss-tools/seqd/) — self-hosted email sequencer
+- [Inspector](https://github.com/getbeton/inspector) — the flagship signal-discovery agent
+- [DryFit](https://github.com/getbeton/dryfit) — synthetic analytics datasets for agent benchmarking
+- [seqd](https://github.com/getbeton/seqd) — self-hosted email sequencer
 
-Browse [all open-source tools by Beton →](https://www.getbeton.ai/oss-tools/)
+Browse [all open-source tools by Beton →](https://github.com/getbeton)

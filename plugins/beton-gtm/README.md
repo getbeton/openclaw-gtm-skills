@@ -1,6 +1,6 @@
 # Beton GTM Intelligence Plugin
 
-Outbound prospecting pipeline for [Beton](https://getbeton.ai). Bundles all GTM intelligence skills into a single plugin that takes a list of domains and turns them into researched, scored, segmented, and outreach-ready prospects.
+Outbound prospecting pipeline for [Beton](https://github.com/getbeton). Bundles all GTM intelligence skills into a single plugin that takes a list of domains and turns them into researched, scored, segmented, and outreach-ready prospects.
 
 ## What it does
 
